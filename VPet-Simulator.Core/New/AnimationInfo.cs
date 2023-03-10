@@ -38,7 +38,7 @@ namespace VPet_Simulator.Core.New
             this.type = type;
             if(type == AnimationType.SIMPLE_LOOP)
             {
-                DirectoryInfo directoryInfo = new DirectoryInfo(path.AbsolutePath);
+                DirectoryInfo directoryInfo = new DirectoryInfo(path.LocalPath);
                 framesLoop = new List<FrameInfo>();
 
                 var files = directoryInfo.GetFiles();

@@ -182,6 +182,7 @@ namespace VPet_Simulator.Core
                 g.Stop(true);
             if (PetGrid2.Child is IGraph g2)
                 g2.Stop(true);
+            AnimationController.Instance.Dispose();
         }
         /// <summary>
         /// 清理所有状态

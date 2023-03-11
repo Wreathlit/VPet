@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace VPet_Simulator.Core.New
+namespace VPet_Simulator.Core
 {
     public class AnimationController
     {

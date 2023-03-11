@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static VPet_Simulator.Core.GraphCore;
+﻿using static VPet_Simulator.Core.GraphCore;
 
-namespace VPet_Simulator.Core.New
+namespace VPet_Simulator.Core
 {
     public static class AnimationTypeWrapper
     {

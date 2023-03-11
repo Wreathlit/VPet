@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace VPet_Simulator.Core.New
+namespace VPet_Simulator.Core
 {
     public interface IGraphNew
     {

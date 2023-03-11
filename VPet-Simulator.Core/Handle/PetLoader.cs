@@ -1,12 +1,7 @@
 ﻿using LinePutScript;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Threading;
-using VPet_Simulator.Core.New;
 using static VPet_Simulator.Core.GraphCore;
 
 namespace VPet_Simulator.Core

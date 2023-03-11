@@ -257,42 +257,6 @@ namespace VPet_Simulator.Core
         /// </summary>
         public Dictionary<GraphType, List<IGraph>> Graphs = new Dictionary<GraphType, List<IGraph>>();
 
-        /// <summary>
-        /// 添加动画
-        /// </summary>
-        /// <param name="graph">动画</param>
-        /// <param name="type">类型</param>
-        public void AddGraph(IGraph graph, GraphType type)
-        {
-            //switch (graph.GraphType)
-            //{
-            //    case GraphType.Default:
-            //    case GraphType.Boring_B_Loop:
-            //    case GraphType.Squat_B_Loop:
-            //        graph.IsLoop = true;
-            //        break;
-            //}//循环真要不得,要做随机循环
-            if (!Graphs.ContainsKey(type))
-            {
-                Graphs.Add(type, new List<IGraph>());
-            }
-            Graphs[type].Add(graph);
-        }
-        /// <summary>
-        /// 添加动画 自动创建
-        /// </summary>
-        /// <param name="path">位置</param>
-        /// <param name="modetype">状态类型</param>
-        /// <param name="graphtype">动画类型</param>
-        ///// <param name="storemem">是否储存到内存以节约加载</param>
-        //public void AddGraph(string path, Save.ModeType modetype, GraphType graphtype)//, bool storemem = false)
-        //{
-        //    var paths = new DirectoryInfo(path).GetFiles();
-        //    if (paths.Length == 0)
-        //        return;
-        //    AddGraph(new PNGAnimation(path, paths, modetype, graphtype), graphtype);
-        //}
-        /// <summary>
         /// 随机数字典(用于确保随机动画不会错位)
         /// </summary>
         public Dictionary<int, int> RndGraph = new Dictionary<int, int>();
@@ -334,25 +298,6 @@ namespace VPet_Simulator.Core
             return null;// FindGraph(GraphType.Default, mode);
         }
         static string[] graphtypevalue = null;
-        /// <summary>
-        /// 动画类型默认前文本
-        /// </summary>
-        public static string[] GraphTypeValue
-        {
-            get
-            {
-                if (graphtypevalue == null)
-                {
-                    List<string> gtv = new List<string>();
-                    foreach (string v in Enum.GetNames(typeof(GraphType)))
-                    {
-                        gtv.Add(v.Replace("_Start", "").Replace("_Loop", "").Replace("_End", "").ToLower());
-                    }
-                    graphtypevalue = gtv.ToArray();
-                }
-                return graphtypevalue;
-            }
-        }
 
         public Config GraphConfig;
         /// <summary>

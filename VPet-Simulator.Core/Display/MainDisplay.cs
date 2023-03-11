@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Windows;
-using System.Windows.Threading;
-using VPet_Simulator.Core.New;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 using static VPet_Simulator.Core.GraphCore;
 
 namespace VPet_Simulator.Core
@@ -1060,13 +1056,8 @@ namespace VPet_Simulator.Core
         /// <param name="storernd">是否储存随机数字典</param>
         public void Display(GraphType Type, Action EndAction = null, bool storernd = false)
         {
-            //Display(Core.Graph.FindGraph(Type, Core.Save.Mode, storernd), EndAction);
-
-            //Console.WriteLine("Command: Display " + new System.Diagnostics.StackTrace().ToString());
             AnimationController.Instance.PlayAnimation(Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
             DisplayType = Type;
-            //EndAction?.Invoke();
-            //Console.WriteLine("Display Command: " + Type.GetGrpahString());
         }
         /// <summary>
         /// 显示动画 (自动多层切换)

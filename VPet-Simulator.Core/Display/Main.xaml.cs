@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using VPet_Simulator.Core.New;
 using static VPet_Simulator.Core.GraphCore;
 
 namespace VPet_Simulator.Core

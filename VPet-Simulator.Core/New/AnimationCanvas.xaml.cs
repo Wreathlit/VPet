@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace VPet_Simulator.Core.New
+namespace VPet_Simulator.Core
 {
     /// <summary>
     /// Interaction logic for AnimationCanvas.xaml

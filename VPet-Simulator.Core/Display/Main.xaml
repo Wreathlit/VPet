@@ -6,8 +6,6 @@
     <Viewbox>
         <Grid x:Name="MainGrid" Width="500" Height="500" MouseLeftButtonDown="MainGrid_MouseLeftButtonDown" x:FieldModifier="public"
                 MouseLeftButtonUp="MainGrid_MouseLeftButtonUp" MouseRightButtonDown="MainGrid_MouseRightButtonDown" MouseMove="MainGrid_MouseWave">
-            <Border x:Name="PetGrid" VerticalAlignment="Bottom" Visibility="Hidden"/>
-            <Border x:Name="PetGrid2" VerticalAlignment="Bottom" Visibility="Hidden" />
             <local:AnimationCanvas x:Name="animationCanvas" Width="500" Height="500"/>
             <Grid x:Name="UIGrid">
                 

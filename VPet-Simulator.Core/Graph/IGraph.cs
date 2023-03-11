@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using static VPet_Simulator.Core.GraphCore;
 
@@ -13,6 +9,7 @@ namespace VPet_Simulator.Core
     /// </summary>
     public interface IGraph
     {
+        string name { get; }
         /// <summary>
         /// 从0开始运行该动画
         /// </summary>
@@ -20,11 +17,11 @@ namespace VPet_Simulator.Core
         /// <summary>
         /// 当前动画播放状态
         /// </summary>
-        bool PlayState { get; set; }
+        //bool PlayState { get; set; }
         /// <summary>
         /// 是否循环播放
         /// </summary>
-        bool IsLoop { get; set; }
+        //bool IsLoop { get; set; }
         /// <summary>
         /// 是否继续播放
         /// </summary>

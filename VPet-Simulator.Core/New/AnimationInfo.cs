@@ -36,7 +36,7 @@ namespace VPet_Simulator.Core.New
             this.name = name;
             this.mode = mode;
             this.type = type;
-            if(type == AnimationType.SIMPLE_LOOP)
+            if (type == AnimationType.SIMPLE_LOOP)
             {
                 DirectoryInfo directoryInfo = new DirectoryInfo(path.LocalPath);
                 framesLoop = new List<FrameInfo>();
@@ -50,7 +50,8 @@ namespace VPet_Simulator.Core.New
                     framesLoop.Add(frame);
                 }
                 animationShift = framesLoop.Select(x => x.frameShift).Aggregate((a, b) => Vector.Add(a, b));
-            }else if(type == AnimationType.COMPLEX_LOOP)
+            }
+            else if (type == AnimationType.COMPLEX_LOOP)
             {
 
             }

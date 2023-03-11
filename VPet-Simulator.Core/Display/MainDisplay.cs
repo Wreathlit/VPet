@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Windows;
 using System.Windows.Threading;
+using VPet_Simulator.Core.New;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TreeView;
 using static VPet_Simulator.Core.GraphCore;
 
 namespace VPet_Simulator.Core
@@ -97,16 +100,16 @@ namespace VPet_Simulator.Core
             if (DisplayType == GraphType.Touch_Head_A_Start)
                 return;
             if (DisplayType == GraphType.Touch_Head_B_Loop)
-                if (PetGrid.Child is IGraph ig && ig.GraphType == GraphCore.GraphType.Touch_Head_B_Loop)
-                {
-                    ig.IsContinue = true;
-                    return;
-                }
-                else if (PetGrid2.Child is IGraph ig2 && ig2.GraphType == GraphCore.GraphType.Touch_Head_B_Loop)
-                {
-                    ig2.IsContinue = true;
-                    return;
-                }
+                //if (PetGrid.Child is IGraph ig && ig.GraphType == GraphCore.GraphType.Touch_Head_B_Loop)
+                //{
+                //    ig.IsContinue = true;
+                //    return;
+                //}
+                //else if (PetGrid2.Child is IGraph ig2 && ig2.GraphType == GraphCore.GraphType.Touch_Head_B_Loop)
+                //{
+                //    ig2.IsContinue = true;
+                //    return;
+                //}
 
             Display(GraphCore.GraphType.Touch_Head_A_Start, () =>
                Display(GraphCore.GraphType.Touch_Head_B_Loop, () =>
@@ -126,16 +129,16 @@ namespace VPet_Simulator.Core
             if (DisplayType == GraphType.Touch_Body_A_Start)
                 return;
             if (DisplayType == GraphType.Touch_Body_B_Loop)
-                if (PetGrid.Child is IGraph ig && ig.GraphType == GraphCore.GraphType.Touch_Body_B_Loop)
-                {
-                    ig.IsContinue = true;
-                    return;
-                }
-                else if (PetGrid2.Child is IGraph ig2 && ig2.GraphType == GraphCore.GraphType.Touch_Body_B_Loop)
-                {
-                    ig2.IsContinue = true;
-                    return;
-                }
+                //if (PetGrid.Child is IGraph ig && ig.GraphType == GraphCore.GraphType.Touch_Body_B_Loop)
+                //{
+                //    ig.IsContinue = true;
+                //    return;
+                //}
+                //else if (PetGrid2.Child is IGraph ig2 && ig2.GraphType == GraphCore.GraphType.Touch_Body_B_Loop)
+                //{
+                //    ig2.IsContinue = true;
+                //    return;
+                //}
             Core.Graph.RndGraph.Clear();
             Display(GraphCore.GraphType.Touch_Body_A_Start, () =>
                Display(GraphCore.GraphType.Touch_Body_B_Loop, () =>
@@ -1057,9 +1060,14 @@ namespace VPet_Simulator.Core
         /// <param name="storernd">是否储存随机数字典</param>
         public void Display(GraphType Type, Action EndAction = null, bool storernd = false)
         {
-            Display(Core.Graph.FindGraph(Type, Core.Save.Mode, storernd), EndAction);
+            //Display(Core.Graph.FindGraph(Type, Core.Save.Mode, storernd), EndAction);
+
+            //Console.WriteLine("Command: Display " + new System.Diagnostics.StackTrace().ToString());
+            AnimationController.Instance.PlayAnimation(Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
+            DisplayType = Type;
+            //EndAction?.Invoke();
+            //Console.WriteLine("Display Command: " + Type.GetGrpahString());
         }
-        bool petgridcrlf = true;
         /// <summary>
         /// 显示动画 (自动多层切换)
         /// </summary>
@@ -1067,72 +1075,6 @@ namespace VPet_Simulator.Core
         /// <param name="EndAction">结束操作</param>
         public void Display(IGraph graph, Action EndAction = null)
         {
-            if (graph == null)
-            {
-                EndAction?.Invoke();
-                return;
-            }
-            //if(graph.GraphType == GraphType.Climb_Up_Left)
-            //{
-            //    Dispatcher.Invoke(() => Say(graph.GraphType.ToString()));
-            //}
-            DisplayType = graph.GraphType;
-            if (PetGrid.Child == graph.This)
-            {
-                petgridcrlf = true;
-                ((IGraph)(PetGrid2.Child)).Stop(true);
-                Dispatcher.Invoke(() =>
-                {
-                    PetGrid.Visibility = Visibility.Hidden;
-                    PetGrid2.Visibility = Visibility.Hidden;
-                });
-                graph.Run(EndAction);
-                return;
-            }
-            else if (PetGrid2.Child == graph.This)
-            {
-                petgridcrlf = false;
-                ((IGraph)(PetGrid.Child)).Stop(true);
-                Dispatcher.Invoke(() =>
-                {
-                    PetGrid2.Visibility = Visibility.Hidden;
-                    PetGrid.Visibility = Visibility.Hidden;
-                });
-                graph.Run(EndAction);
-                return;
-            }
-            graph.Run(EndAction);
-            if (petgridcrlf)
-            {
-                ((IGraph)(PetGrid.Child)).Stop(true);
-                Dispatcher.Invoke(() =>
-                {
-                    PetGrid2.Child = graph.This;
-                    PetGrid.Visibility = Visibility.Hidden;
-                    PetGrid2.Visibility = Visibility.Hidden;
-                });
-                //Task.Run(() =>
-                //{
-                //    Thread.Sleep(25);
-                //    Dispatcher.Invoke(() => PetGrid.Child = null);
-                //});
-            }
-            else
-            {
-                ((IGraph)(PetGrid2.Child)).Stop(true);
-                Dispatcher.Invoke(() =>
-                {
-                    PetGrid.Child = graph.This;
-                    PetGrid2.Visibility = Visibility.Hidden;
-                    PetGrid.Visibility = Visibility.Hidden;
-                });
-                //Task.Run(() =>
-                //{
-                //    Thread.Sleep(25);
-                //    Dispatcher.Invoke(() => PetGrid2.Child = null);
-                //});
-            }
-            petgridcrlf = !petgridcrlf;
 
         }
     }

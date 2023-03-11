@@ -251,40 +251,7 @@ namespace VPet_Simulator.Core
             /// </summary>
             Shutdown,
         }
-        ///// <summary> loop 应该被取缔
-        ///// 动画类型默认设置 前文本|是否循环|是否常用
-        ///// </summary>
-        //public static readonly dynamic[][] GraphTypeValue = new dynamic[][]
-        //{
-        //     new dynamic[]{ "raised_dynamic" ,false,true},
-        //     new dynamic[]{ "raised_static_a", false,true},
-        //     new dynamic[]{ "raised_static_b", false,true},
-        //     new dynamic[]{ "climb_top_right", false,false},
-        //     new dynamic[]{ "climb_top_left", false, false},
-        //     new dynamic[]{ "Crawl_right", false,false},
-        //     new dynamic[]{ "Crawl_left", false, false},
-        //     new dynamic[]{ "climb_right", false, false},
-        //     new dynamic[]{ "climb_left", false, false},
-        //     new dynamic[]{ "default", true,true},
-        //     new dynamic[]{ "touch_head_a", false,true},
-        //     new dynamic[]{ "touch_head_b", false,true},
-        //     new dynamic[]{ "touch_head_c", false,true},
-        //     new dynamic[]{ "crawl_right", false, true},
-        //     new dynamic[]{ "crawl_left", false, true},
-        //     new dynamic[]{ "squat_a", false,true},
-        //     new dynamic[]{ "squat_b", false, true},
-        //     new dynamic[]{ "squat_c", false,true},
-        //     new dynamic[]{ "fall_left_a", false, false},
-        //     new dynamic[]{ "fall_left_b", false,true},
-        //     new dynamic[]{ "fall_right_a", false, false},
-        //     new dynamic[]{ "fall_right_b", false,true},
-        //     new dynamic[]{ "walk_right_a", false,true},
-        //     new dynamic[]{ "walk_right_b", false, true},
-        //     new dynamic[]{ "walk_right_c", false,true},
-        //     new dynamic[]{ "walk_left_a", false,true},
-        //     new dynamic[]{ "walk_left_b", false, true},
-        //     new dynamic[]{ "walk_left_c", false,true},
-        //};
+
         /// <summary>
         /// 图像字典
         /// </summary>
@@ -318,17 +285,13 @@ namespace VPet_Simulator.Core
         /// <param name="modetype">状态类型</param>
         /// <param name="graphtype">动画类型</param>
         ///// <param name="storemem">是否储存到内存以节约加载</param>
-        public void AddGraph(string path, Save.ModeType modetype, GraphType graphtype)//, bool storemem = false)
-        {
-            var paths = new DirectoryInfo(path).GetFiles();
-            if (paths.Length == 0)
-                return;
-            if (paths.Length == 1)
-                AddGraph(new Picture(paths[0].FullName, modetype, graphtype,
-                    int.Parse(paths[0].Name.Split('.').Reverse().ToArray()[1].Split('_').Last())), graphtype);
-            else
-                AddGraph(new PNGAnimation(path, paths, modetype, graphtype), graphtype);
-        }
+        //public void AddGraph(string path, Save.ModeType modetype, GraphType graphtype)//, bool storemem = false)
+        //{
+        //    var paths = new DirectoryInfo(path).GetFiles();
+        //    if (paths.Length == 0)
+        //        return;
+        //    AddGraph(new PNGAnimation(path, paths, modetype, graphtype), graphtype);
+        //}
         /// <summary>
         /// 随机数字典(用于确保随机动画不会错位)
         /// </summary>

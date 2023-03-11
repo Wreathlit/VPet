@@ -16,11 +16,9 @@ namespace VPet_Simulator.Core
     {
         public GraphCore()
         {
-            if (!Directory.Exists(CachePath))
-                Directory.CreateDirectory(CachePath);
+
         }
 
-        public static string CachePath = AppDomain.CurrentDomain.BaseDirectory + @"\cache";
         /// <summary>
         /// 动画类型
         /// </summary>
@@ -297,7 +295,7 @@ namespace VPet_Simulator.Core
             }
             return null;// FindGraph(GraphType.Default, mode);
         }
-        static string[] graphtypevalue = null;
+        //static string[] graphtypevalue = null;
 
         public Config GraphConfig;
         /// <summary>

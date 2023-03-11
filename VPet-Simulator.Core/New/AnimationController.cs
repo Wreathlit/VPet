@@ -116,11 +116,11 @@ namespace VPet_Simulator.Core
                             //Console.WriteLine(DateTime.Now.Second.ToString("00") + DateTime.Now.Millisecond.ToString("000") + "\tRender Request ============================>");
                             a.Invoke();
                         }
-                        catch (ThreadInterruptedException e)
+                        catch (ThreadInterruptedException)
                         {
                             //Console.WriteLine("Interrupt ForceExit");
                         }
-                        catch (ThreadAbortException e)
+                        catch (ThreadAbortException)
                         {
                             return;
                         }
@@ -134,11 +134,11 @@ namespace VPet_Simulator.Core
                 {
                     Thread.Sleep(1000);
                 }
-                catch (ThreadInterruptedException e)
+                catch (ThreadInterruptedException)
                 {
                     //Console.WriteLine("Interrupt Awake");
                 }
-                catch (ThreadAbortException e)
+                catch (ThreadAbortException)
                 {
                     return;
                 }

@@ -267,10 +267,15 @@ namespace VPet_Simulator.Core
             {
                 repeatFlag = false;
                 repeatTimes = 0;
+                currentPlayingCommand = () => OrderAnimation(name, mode, loopTimes, forceExit, callback);
+                currentPlayingCommand.Invoke();
             }
-
-            currentPlayingCommand = () => OrderAnimation(name, mode, loopTimes, forceExit, callback);
-            currentPlayingCommand.Invoke();
+            else
+            {
+                Action action = () => OrderAnimation(name, mode, loopTimes, forceExit, callback);
+                CommandList.Enqueue(action);
+                if (ProcessOrderThread.ThreadState == ThreadState.WaitSleepJoin) ProcessOrderThread.Interrupt();
+            }
         }
 
         /// <summary>

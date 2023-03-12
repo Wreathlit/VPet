@@ -285,7 +285,11 @@ namespace VPet_Simulator.Core
 
         public void Dispose()
         {
+            ProcessOrderThread?.Abort();
+            currentPlayingCommand = null;
+
             graph?.Clear();
+
             while (OrderList != null && !OrderList.IsEmpty)
             {
                 OrderList.TryDequeue(out _);

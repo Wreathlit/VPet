@@ -120,8 +120,7 @@ namespace VPet_Simulator.Core
             else
                 Display(GraphCore.GraphType.Touch_Body_A_Start, () =>
                    Display(GraphCore.GraphType.Touch_Body_B_Loop, () =>
-                   Display(GraphCore.GraphType.Touch_Body_C_End, DisplayNomal
-                , true), true), true);
+                   Display(GraphCore.GraphType.Touch_Body_C_End, DisplayNomal)));
         }
         /// <summary>
         /// 显示待机(模式1)情况
@@ -1034,19 +1033,10 @@ namespace VPet_Simulator.Core
         /// <param name="Type">动画类型</param>
         /// <param name="EndAction">动画结束后操作</param>
         /// <param name="storernd">是否储存随机数字典</param>
-        public void Display(GraphType Type, Action EndAction = null, bool storernd = false)
+        public void Display(GraphType Type, Action EndAction = null)
         {
             DisplayType = Type;
             AnimationController.Instance.PlayAnimation(Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
         }
-        /// <summary>
-        /// 显示动画 (自动多层切换)
-        /// </summary>
-        /// <param name="graph">动画</param>
-        /// <param name="EndAction">结束操作</param>
-        //public void Display(IGraph graph, Action EndAction = null)
-        //{
-
-        //}
     }
 }

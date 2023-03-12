@@ -250,10 +250,6 @@ namespace VPet_Simulator.Core
             Shutdown,
         }
 
-        /// 随机数字典(用于确保随机动画不会错位)
-        /// </summary>
-        //public Dictionary<int, int> RndGraph = new Dictionary<int, int>();
-
         public Config GraphConfig;
         /// <summary>
         /// 动画设置

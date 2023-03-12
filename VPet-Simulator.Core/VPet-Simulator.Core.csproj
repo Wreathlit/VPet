@@ -135,6 +135,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="New\AnimationCanvas.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Display\MainDisplay.cs" />
@@ -167,6 +171,12 @@
     <Compile Include="Item\Drink.cs" />
     <Compile Include="Item\Food.cs" />
     <Compile Include="Item\Item.cs" />
+    <Compile Include="New\AnimationCanvas.xaml.cs">
+      <DependentUpon>AnimationCanvas.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="New\AnimationController.cs" />
+    <Compile Include="New\AnimationInfo.cs" />
+    <Compile Include="New\IGraphNew.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

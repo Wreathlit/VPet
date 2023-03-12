@@ -69,10 +69,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LinePutScript, Version=1.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\VUPSimulator\packages\LinePutScript.1.6.1\lib\net462\LinePutScript.dll</HintPath>
+      <HintPath>..\packages\LinePutScript.1.6.1\lib\net462\LinePutScript.dll</HintPath>
     </Reference>
     <Reference Include="Panuon.WPF, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\VUPSimulator\packages\Panuon.WPF.1.0.1\lib\net462\Panuon.WPF.dll</HintPath>
+      <HintPath>..\packages\Panuon.WPF.1.0.1\lib\net462\Panuon.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Panuon.WPF.UI, Version=1.1.8.4, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Panuon.WPF.UI.1.1.8.4\lib\net462\Panuon.WPF.UI.dll</HintPath>
@@ -127,14 +127,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Graph\Picture.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Graph\PNGAnimation.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="New\AnimationCanvas.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -156,13 +148,6 @@
     <Compile Include="Graph\EyeTracking.xaml.cs">
       <DependentUpon>EyeTracking.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Graph\IGraph.cs" />
-    <Compile Include="Graph\Picture.xaml.cs">
-      <DependentUpon>Picture.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Graph\PNGAnimation.xaml.cs">
-      <DependentUpon>PNGAnimation.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Handle\Function.cs" />
     <Compile Include="Handle\GameCore.cs" />
     <Compile Include="Handle\IController.cs" />
@@ -176,6 +161,7 @@
     </Compile>
     <Compile Include="New\AnimationController.cs" />
     <Compile Include="New\AnimationInfo.cs" />
+    <Compile Include="New\AnimationTypeWrapper.cs" />
     <Compile Include="New\IGraphNew.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

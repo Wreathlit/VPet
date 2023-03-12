@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using VPet_Simulator.Core.New;
 using static VPet_Simulator.Core.GraphCore;
 
 namespace VPet_Simulator.Core
@@ -37,7 +36,7 @@ namespace VPet_Simulator.Core
         public event Action<Main> TimeUIHandle;
         public Main(GameCore core, bool loadtouchevent = true)
         {
-            Console.WriteLine(DateTime.Now.ToString("T:fff"));
+            //Console.WriteLine(DateTime.Now.ToString("T:fff"));
             InitializeComponent();
             Core = core;
 
@@ -53,12 +52,7 @@ namespace VPet_Simulator.Core
                 LoadTouchEvent();
             }
 
-            var ig = Core.Graph.FindGraph(GraphCore.GraphType.StartUP, core.Save.Mode);
-            PetGrid.Child = ig.This;
-            var ig2 = Core.Graph.FindGraph(GraphCore.GraphType.Default, core.Save.Mode);
-            PetGrid2.Child = ig2.This; //用于缓存
-            //PetGrid2.Visibility = Visibility.Collapsed;
-            ig.WaitForReadyRun(DisplayNomal);
+            Display(GraphType.StartUP, () => DisplayNomal());
 
 
             EventTimer.Elapsed += EventTimer_Elapsed;
@@ -178,10 +172,6 @@ namespace VPet_Simulator.Core
             MoveTimer.Dispose();
             MsgBar.Dispose();
             ToolBar.Dispose();
-            if (PetGrid.Child is IGraph g)
-                g.Stop(true);
-            if (PetGrid2.Child is IGraph g2)
-                g2.Stop(true);
             AnimationController.Instance.Dispose();
         }
         /// <summary>

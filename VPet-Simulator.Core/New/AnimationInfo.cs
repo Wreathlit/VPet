@@ -47,6 +47,7 @@ namespace VPet_Simulator.Core
                     FileInfo file = files[i];
                     int frameTime = int.Parse(file.Name.Split('.').Reverse().ToArray()[1].Split('_').Last());
                     FrameInfo frame = new FrameInfo(i, frameTime, i == files.Length - 1, new Uri(file.FullName));
+                    frame.name = name;
                     framesLoop.Add(frame);
                 }
                 animationShift = framesLoop.Select(x => x.frameShift).Aggregate((a, b) => Vector.Add(a, b));
@@ -79,6 +80,7 @@ namespace VPet_Simulator.Core
         public Stream stream;               //已注册的流，建议用内存流
 
         public int index;                   //本帧序号，从0开始
+        public string name;                 //帧所属的动画名
         public bool isLastFrame;            //是否是结尾帧（表达单次播放时，此动画是否已结束用）
         public int frameTime;               //帧停留时间，单位为毫秒
 

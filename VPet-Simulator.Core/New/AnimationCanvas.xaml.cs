@@ -20,6 +20,7 @@ namespace VPet_Simulator.Core
         {
             Dispatcher.Invoke(() =>
             {
+                //Console.WriteLine(DateTime.Now.Second.ToString("00") + DateTime.Now.Millisecond.ToString("000") + "\tRender Request ============================>");
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 stream.Seek(0, SeekOrigin.Begin);
@@ -27,7 +28,7 @@ namespace VPet_Simulator.Core
                 bitmap.CacheOption = BitmapCacheOption.OnLoad;
                 bitmap.EndInit();
                 Source = bitmap;
-                //Console.WriteLine(DateTime.Now.Second.ToString("00") + DateTime.Now.Millisecond.ToString("000") + "\t=====================================> Render Response");
+                //Console.WriteLine(DateTime.Now.Second.ToString("00") + DateTime.Now.Millisecond.ToString("000") + "\t============================> Render Response");
             });
         }
 

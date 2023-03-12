@@ -28,7 +28,11 @@ namespace VPet_Simulator.Core
         private Dictionary<string, FrameInfo> framesCache;
 
         private List<string> existAnimations;
-        //动画控制器，接收逻辑状态，输出动画状态
+
+
+        /// <summary>
+        /// 动画控制器，接收逻辑状态，输出动画状态
+        /// </summary>
         AnimationController()
         {
             Initialize();
@@ -48,6 +52,7 @@ namespace VPet_Simulator.Core
             animations = new List<AnimationInfo>();
             framesCache = new Dictionary<string, FrameInfo>();
             OrderList = new ConcurrentQueue<Action>();
+            CommandList = new ConcurrentQueue<Action>();
             random = new Random();
             ProcessOrderThread = new Thread(ProcessOrder);
             ProcessOrderThread.Start();
@@ -100,7 +105,11 @@ namespace VPet_Simulator.Core
         }
 
         private ConcurrentQueue<Action> OrderList;
+        private ConcurrentQueue<Action> CommandList;
+        private Action currentPlayingCommand;
         private Thread ProcessOrderThread;
+        private bool repeatFlag = false;
+        private int repeatTimes = 0;
         private void ProcessOrder()
         {
             while (OrderList != null)
@@ -112,80 +121,100 @@ namespace VPet_Simulator.Core
                     {
                         try
                         {
-                            //Console.WriteLine("OrderFrame: " + a.ToString());
-                            //Console.WriteLine(DateTime.Now.Second.ToString("00") + DateTime.Now.Millisecond.ToString("000") + "\tRender Request ============================>");
+                            //Console.WriteLine("Invoke Command: " + a.Method.ToString());
                             a.Invoke();
                         }
-                        catch (ThreadInterruptedException)
-                        {
-                            //Console.WriteLine("Interrupt ForceExit");
-                        }
-                        catch (ThreadAbortException)
-                        {
-                            return;
-                        }
-                        finally
-                        {
-
-                        }
+                        catch (ThreadInterruptedException) { }
+                        catch (ThreadAbortException) { return; }
                     }
                 }
-                try
+                if (repeatFlag && repeatTimes != 0 && currentPlayingCommand != null)
                 {
-                    Thread.Sleep(1000);
+                    try
+                    {
+                        repeatFlag = false;
+                        repeatTimes--;
+                        currentPlayingCommand.Invoke();
+                        Thread.Sleep(1);
+                    }
+                    catch (ThreadInterruptedException) { }
+                    catch (ThreadAbortException) { return; }
                 }
-                catch (ThreadInterruptedException)
+                else if (!CommandList.IsEmpty)
                 {
-                    //Console.WriteLine("Interrupt Awake");
+                    Action a;
+                    if (CommandList.TryDequeue(out a))
+                    {
+                        try
+                        {
+                            repeatFlag = false;
+                            repeatTimes = 0;
+                            currentPlayingCommand = a;
+                            a.Invoke();
+                            Thread.Sleep(1);
+                        }
+                        catch (ThreadInterruptedException) { }
+                        catch (ThreadAbortException) { return; }
+                    }
                 }
-                catch (ThreadAbortException)
+                else
                 {
-                    return;
-                }
-                finally
-                {
-
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch (ThreadInterruptedException) { }
+                    catch (ThreadAbortException) { return; }
                 }
             }
         }
 
         private void OrderAnimation(string name, string mode, int loopTimes, bool forceExit, Action additionalAction)
         {
-            AnimationInfo result;
             var accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).ToList();
+            if (!accurate.Any())
+                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("nomal")).ToList();
+            if (!accurate.Any())
+                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("happy")).ToList();
+            if (!accurate.Any())
+                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("ill")).ToList();
+            if (!accurate.Any())
+                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name)).ToList();
+            if (!accurate.Any())
+                accurate = rawAnimations.Where(x => x.name.ToLower().Contains("default")).ToList();
+
+            AnimationInfo result;
+
             if (accurate.Count > 0)
             {
                 result = accurate.ElementAt(random.Next(accurate.Count));
-                while (!OrderList.IsEmpty && forceExit)
-                {
-                    OrderList.TryDequeue(out _);
-                }
-                GenerateTasks(result).ForEach(x => OrderList.Enqueue(x));
-                if (additionalAction != null)
-                    OrderList.Enqueue(additionalAction);
-                if (forceExit || ProcessOrderThread.ThreadState == ThreadState.WaitSleepJoin)
-                    ProcessOrderThread.Interrupt();
-                return;
-            }
-            var alter = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("nomal")).ToList();
 
-            if (alter.Count > 0)
-            {
-                result = alter.ElementAt(random.Next(alter.Count));
-                while (!OrderList.IsEmpty && forceExit)
+                if (forceExit)
                 {
-                    OrderList.TryDequeue(out _);
-                }
-                GenerateTasks(result).ForEach(x => OrderList.Enqueue(x));
-                if (additionalAction != null)
-                    OrderList.Enqueue(additionalAction);
-                if (forceExit || ProcessOrderThread.ThreadState == ThreadState.WaitSleepJoin)
+                    while (!OrderList.IsEmpty)
+                    {
+                        OrderList.TryDequeue(out _);
+                    }
+                    while (!CommandList.IsEmpty)
+                    {
+                        CommandList.TryDequeue(out _);
+                    }
                     ProcessOrderThread.Interrupt();
-                return;
-            }
+                }
 
-            var protect = rawAnimations.Where(x => x.name.ToLower().Contains(name)).ToList();
-            var last = rawAnimations.Where(x => x.name.ToLower().Contains("default")).ToList();
+                GenerateTasks(result).ForEach(x => OrderList.Enqueue(x));
+
+                if (additionalAction != null)
+                {
+                    CommandList.Enqueue(() =>
+                    {
+                        additionalAction.Invoke();
+                    });
+                }
+
+                if (ProcessOrderThread.ThreadState == ThreadState.WaitSleepJoin)
+                    ProcessOrderThread.Interrupt();
+            }
         }
 
         private List<Action> GenerateTasks(AnimationInfo animation)
@@ -197,8 +226,10 @@ namespace VPet_Simulator.Core
                 FrameInfo f = animation.framesLoop[i];
                 tasks.Add(() =>
                 {
+                    //Console.WriteLine(DateTime.Now.Second.ToString("00") + "." + DateTime.Now.Millisecond.ToString("000") + "\t" + f.name + "\tFrame: " + f.index + " Start => time:" + f.frameTime);
                     Task.Run(() => graph.Order(f.stream));
                     Thread.Sleep(f.frameTime);
+                    //Console.WriteLine(DateTime.Now.Second.ToString("00") + "." + DateTime.Now.Millisecond.ToString("000") + "\t" + f.name + "\t=============>Frame: " + f.index + " End");
                 });
             }
             return tasks;
@@ -206,19 +237,16 @@ namespace VPet_Simulator.Core
 
         public void PlayAnimation(string name, string mode, int loopTimes = 0, bool forceExit = false, Action additionalAction = null)
         {
-
-
             OrderAnimation(name, mode, loopTimes, forceExit, additionalAction);
         }
-
-        public void PlayRawFrame(string frameName)
+        /// <summary>
+        /// 循环当前动画
+        /// </summary>
+        /// <param name="times">循环次数，-1为无限循环，直到有新动作打断</param>
+        public void RepeatCurrentAnimation(int times = 1)
         {
-            FrameInfo f;
-            if (framesCache.TryGetValue(frameName, out f))
-            {
-                //Console.WriteLine("Hit Cache");
-                //graph.Order(f.stream);
-            }
+            repeatFlag = true;
+            repeatTimes = times;
         }
 
         public void Dispose()
@@ -227,6 +255,10 @@ namespace VPet_Simulator.Core
             while (OrderList != null && !OrderList.IsEmpty)
             {
                 OrderList.TryDequeue(out _);
+            }
+            while (CommandList != null && !CommandList.IsEmpty)
+            {
+                CommandList.TryDequeue(out _);
             }
 
             rawAnimations?.ForEach(x => x.Dispose());
@@ -239,32 +271,6 @@ namespace VPet_Simulator.Core
 
             framesCache?.Clear();
             framesCache = null;
-        }
-
-        public void DrawSampleFrame()
-        {
-            if (graph == null)
-            {
-                throw new ArgumentNullException("需要先使用RegistryGraph注册画布");
-            }
-
-            var ts = new ThreadStart(testDrawThread);
-            var t = new Thread(testDrawThread);
-            t.Start();
-        }
-
-        public void testDrawThread()
-        {
-            int i = 0;
-            Random rnd = new Random();
-            while (true)
-            {
-                Thread.Sleep(100);
-                var a = rawAnimations[rnd.Next(rawAnimations.Count - 1)];
-                var f = a.framesLoop[i++ % a.framesLoop.Count];
-                //Console.WriteLine("DrawNext: " + f.stream.Length);
-                graph.Order(f.stream);
-            }
         }
     }
 }

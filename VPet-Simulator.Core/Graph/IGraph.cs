@@ -9,11 +9,11 @@ namespace VPet_Simulator.Core
     /// </summary>
     public interface IGraph
     {
-        string name { get; }
+        //string name { get; }
         /// <summary>
         /// 从0开始运行该动画
         /// </summary>
-        void Run(Action EndAction = null);
+        //void Run(Action EndAction = null);
         /// <summary>
         /// 当前动画播放状态
         /// </summary>
@@ -25,7 +25,7 @@ namespace VPet_Simulator.Core
         /// <summary>
         /// 是否继续播放
         /// </summary>
-        bool IsContinue { get; set; }
+        //bool IsContinue { get; set; }
         /// <summary>
         /// 从0开始运行该动画, 等待部署完成后执行
         /// </summary>

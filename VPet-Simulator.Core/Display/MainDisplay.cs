@@ -96,21 +96,12 @@ namespace VPet_Simulator.Core
             if (DisplayType == GraphType.Touch_Head_A_Start)
                 return;
             if (DisplayType == GraphType.Touch_Head_B_Loop)
-                //if (PetGrid.Child is IGraph ig && ig.GraphType == GraphCore.GraphType.Touch_Head_B_Loop)
-                //{
-                //    ig.IsContinue = true;
-                //    return;
-                //}
-                //else if (PetGrid2.Child is IGraph ig2 && ig2.GraphType == GraphCore.GraphType.Touch_Head_B_Loop)
-                //{
-                //    ig2.IsContinue = true;
-                //    return;
-                //}
-
-            Display(GraphCore.GraphType.Touch_Head_A_Start, () =>
-               Display(GraphCore.GraphType.Touch_Head_B_Loop, () =>
-               Display(GraphCore.GraphType.Touch_Head_C_End, DisplayNomal
-            )));
+                AnimationController.Instance.RepeatCurrentAnimation(1);
+            else
+                Display(GraphCore.GraphType.Touch_Head_A_Start, () =>
+                   Display(GraphCore.GraphType.Touch_Head_B_Loop, () =>
+                   Display(GraphCore.GraphType.Touch_Head_C_End, DisplayNomal
+                )));
         }
         /// <summary>
         /// 显示摸身体情况
@@ -125,21 +116,12 @@ namespace VPet_Simulator.Core
             if (DisplayType == GraphType.Touch_Body_A_Start)
                 return;
             if (DisplayType == GraphType.Touch_Body_B_Loop)
-                //if (PetGrid.Child is IGraph ig && ig.GraphType == GraphCore.GraphType.Touch_Body_B_Loop)
-                //{
-                //    ig.IsContinue = true;
-                //    return;
-                //}
-                //else if (PetGrid2.Child is IGraph ig2 && ig2.GraphType == GraphCore.GraphType.Touch_Body_B_Loop)
-                //{
-                //    ig2.IsContinue = true;
-                //    return;
-                //}
-            Core.Graph.RndGraph.Clear();
-            Display(GraphCore.GraphType.Touch_Body_A_Start, () =>
-               Display(GraphCore.GraphType.Touch_Body_B_Loop, () =>
-               Display(GraphCore.GraphType.Touch_Body_C_End, DisplayNomal
-            , true), true), true);
+                AnimationController.Instance.RepeatCurrentAnimation(1);
+            else
+                Display(GraphCore.GraphType.Touch_Body_A_Start, () =>
+                   Display(GraphCore.GraphType.Touch_Body_B_Loop, () =>
+                   Display(GraphCore.GraphType.Touch_Body_C_End, DisplayNomal
+                , true), true), true);
         }
         /// <summary>
         /// 显示待机(模式1)情况
@@ -1046,8 +1028,6 @@ namespace VPet_Simulator.Core
             }
         }
 
-
-
         /// <summary>
         /// 显示动画 
         /// </summary>
@@ -1056,8 +1036,8 @@ namespace VPet_Simulator.Core
         /// <param name="storernd">是否储存随机数字典</param>
         public void Display(GraphType Type, Action EndAction = null, bool storernd = false)
         {
-            AnimationController.Instance.PlayAnimation(Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
             DisplayType = Type;
+            AnimationController.Instance.PlayAnimation(Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
         }
         /// <summary>
         /// 显示动画 (自动多层切换)

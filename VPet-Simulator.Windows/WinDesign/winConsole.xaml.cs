@@ -36,23 +36,23 @@ namespace VPet_Simulator.Windows
             });
         }
 
-        public void DisplayLoop(IGraph graph)
-        {
-            mw.Main.Display(graph, () => DisplayLoop(graph));
-        }
         private void GraphListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (GraphListBox.SelectedItem == null)
                 return;
-            var graph = mw.Main.Core.Graph.FindGraph((GraphType)Enum.Parse(typeof(GraphType), (string)GraphListBox.SelectedItem),
-                 (Save.ModeType)Enum.Parse(typeof(Save.ModeType), (string)(((ComboBoxItem)ComboxMode.SelectedItem).Content)));
-            if (graph == null)
+
+            var type = (GraphType)Enum.Parse(typeof(GraphType), (string)GraphListBox.SelectedItem);
+            var mode = (Save.ModeType)Enum.Parse(typeof(Save.ModeType), (string)(((ComboBoxItem)ComboxMode.SelectedItem).Content));
+            if (AnimationController.Instance.Exist(type.GetGrpahString(), mode.ToString()))
+            {
+                AnimationController.Instance.PlayAnimation(type.GetGrpahString(), mode.ToString(), 0, true);
+                AnimationController.Instance.RepeatCurrentAnimation(-1);
+                LabelNowPlay.Content = $"当前正在播放: {GraphListBox.SelectedItem}";
+            }
+            else
             {
                 LabelNowPlay.Content = "未找到对应类型图像资源";
-                return;
             }
-            LabelNowPlay.Content = $"当前正在播放: {GraphListBox.SelectedItem}";
-            DisplayLoop(graph);
         }
 
         private void DisplayListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -131,7 +131,7 @@ namespace VPet_Simulator.Windows
                 case "DisplayIdel_StateTWO":
                     mw.Main.DisplayIdel_StateTWO();
                     break;
-                    
+
             }
         }
 
@@ -155,20 +155,5 @@ namespace VPet_Simulator.Windows
         {
             DestanceTimer.Stop();
         }
-
-        //private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //   switch(((TabControl)sender).SelectedIndex)
-        //    {
-        //        case 0:
-        //        case 1:
-        //        case 2:
-        //            ComboxMode.Visibility = Visibility.Visible;
-        //            break;
-        //        default:
-        //            ComboxMode.Visibility = Visibility.Collapsed;
-        //            break;
-        //    }
-        //}
     }
 }

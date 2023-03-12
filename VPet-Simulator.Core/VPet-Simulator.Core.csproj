@@ -148,7 +148,6 @@
     <Compile Include="Graph\EyeTracking.xaml.cs">
       <DependentUpon>EyeTracking.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Graph\IGraph.cs" />
     <Compile Include="Handle\Function.cs" />
     <Compile Include="Handle\GameCore.cs" />
     <Compile Include="Handle\IController.cs" />

@@ -1044,9 +1044,9 @@ namespace VPet_Simulator.Core
         /// </summary>
         /// <param name="graph">动画</param>
         /// <param name="EndAction">结束操作</param>
-        public void Display(IGraph graph, Action EndAction = null)
-        {
+        //public void Display(IGraph graph, Action EndAction = null)
+        //{
 
-        }
+        //}
     }
 }

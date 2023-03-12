@@ -132,8 +132,8 @@ namespace VPet_Simulator.Core
                 {
                     try
                     {
-                        repeatFlag = false;
                         repeatTimes--;
+                        repeatFlag = repeatTimes != 0;
                         currentPlayingCommand.Invoke();
                         Thread.Sleep(1);
                     }
@@ -169,7 +169,7 @@ namespace VPet_Simulator.Core
             }
         }
 
-        private void OrderAnimation(string name, string mode, int loopTimes, bool forceExit, Action additionalAction)
+        private void OrderAnimation(string name, string mode, uint loopTimes, bool forceExit, Action callback)
         {
             var accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).ToList();
             if (!accurate.Any())
@@ -202,13 +202,19 @@ namespace VPet_Simulator.Core
                     ProcessOrderThread.Interrupt();
                 }
 
-                GenerateTasks(result).ForEach(x => OrderList.Enqueue(x));
+                if (loopTimes >= 0)
+                {
+                    for (int i = 0; i <= loopTimes; i++)
+                    {
+                        GenerateTasks(result).ForEach(x => OrderList.Enqueue(x));
+                    }
+                }
 
-                if (additionalAction != null)
+                if (callback != null)
                 {
                     CommandList.Enqueue(() =>
                     {
-                        additionalAction.Invoke();
+                        callback.Invoke();
                     });
                 }
 
@@ -235,18 +241,46 @@ namespace VPet_Simulator.Core
             return tasks;
         }
 
-        public void PlayAnimation(string name, string mode, int loopTimes = 0, bool forceExit = false, Action additionalAction = null)
+        /// <summary>
+        /// 精确检查对应动画是否存在
+        /// </summary>
+        /// <param name="name">动画名</param>
+        /// <param name="mode">模式</param>
+        /// <returns></returns>
+        public bool Exist(string name, string mode)
         {
-            OrderAnimation(name, mode, loopTimes, forceExit, additionalAction);
+            return rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).Any();
         }
+
+        /// <summary>
+        /// 请求播放动画
+        /// </summary>
+        /// <param name="name">动画名</param>
+        /// <param name="mode">模式</param>
+        /// <param name="loopTimes">预约循环次数,最大支持1000</param>
+        /// <param name="forceExit">强制打断上一个动画</param>
+        /// <param name="callback">动画版播放完成时的回调</param>
+        public void PlayAnimation(string name, string mode, uint loopTimes = 0, bool forceExit = true, Action callback = null)
+        {
+            loopTimes = Math.Min(loopTimes, 1000);
+            if (forceExit)
+            {
+                repeatFlag = false;
+                repeatTimes = 0;
+            }
+
+            currentPlayingCommand = () => OrderAnimation(name, mode, loopTimes, forceExit, callback);
+            currentPlayingCommand.Invoke();
+        }
+
         /// <summary>
         /// 循环当前动画
         /// </summary>
         /// <param name="times">循环次数，-1为无限循环，直到有新动作打断</param>
         public void RepeatCurrentAnimation(int times = 1)
         {
-            repeatFlag = true;
             repeatTimes = times;
+            repeatFlag = times != 0;
         }
 
         public void Dispose()

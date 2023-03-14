@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -108,6 +109,8 @@ namespace VPet_Simulator.Core
         private ConcurrentQueue<Action> CommandList;
         private Action currentPlayingCommand;
         private Thread ProcessOrderThread;
+        private string currentPlaying = "";
+        private int currentPlayingRandomIndex = 0;
         private bool repeatFlag = false;
         private int repeatTimes = 0;
         private void ProcessOrder()
@@ -171,6 +174,7 @@ namespace VPet_Simulator.Core
 
         private void OrderAnimation(string name, string mode, uint loopTimes, bool forceExit, Action callback)
         {
+            //Console.WriteLine("Order Animation" + name);
             var accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).ToList();
             if (!accurate.Any())
                 accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("nomal")).ToList();
@@ -187,7 +191,21 @@ namespace VPet_Simulator.Core
 
             if (accurate.Count > 0)
             {
-                result = accurate.ElementAt(random.Next(accurate.Count));
+                int index = 0;
+                //设计要求：同名动画循环时随机，但不同名动画连接时，优先取上一个动画的随机结果
+                bool isFamilyAnimation = AnimationControllerHelper.IsAnimationFamily(name, currentPlaying);
+                if (isFamilyAnimation)
+                {
+                    index = currentPlayingRandomIndex;
+                }
+                else
+                {
+                    index = random.Next(0, accurate.Count);
+                }
+
+                result = accurate.ElementAt(index);
+                currentPlaying = name;
+                currentPlayingRandomIndex = index;
 
                 if (forceExit)
                 {

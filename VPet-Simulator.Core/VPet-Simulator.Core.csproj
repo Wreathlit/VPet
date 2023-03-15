@@ -195,6 +195,7 @@
     <Compile Include="New\AnimationInfo.cs" />
     <Compile Include="New\AnimationControllerHelper.cs" />
     <Compile Include="New\IGraphNew.cs" />
+    <Compile Include="New\MonoGameGraphicsDeviceService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

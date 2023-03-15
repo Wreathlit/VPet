@@ -40,6 +40,8 @@ namespace VPet_Simulator.Core
             InitializeComponent();
             Core = core;
 
+            animationCanvas.GraphicsDeviceService.StartDirect3D(Application.Current.MainWindow);
+
             ToolBar = new ToolBar(this);
             ToolBar.Visibility = Visibility.Collapsed;
             UIGrid.Children.Add(ToolBar);

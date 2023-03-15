@@ -203,6 +203,11 @@ namespace VPet_Simulator.Core
                     index = random.Next(0, accurate.Count);
                 }
 
+                while (accurate.Count <= index)
+                {
+                    index--;
+                }
+                
                 result = accurate.ElementAt(index);
                 currentPlaying = name;
                 currentPlayingRandomIndex = index;

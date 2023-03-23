@@ -41,7 +41,7 @@ namespace VPet_Simulator.Core
             Core = core;
 
             animationCanvas.GraphicsDeviceService.StartDirect3D(Application.Current.MainWindow);
-            AnimationController.Instance.RegistryGraph(animationCanvas);
+            AnimationController.Instance.RegistryGraph(animationCanvas, "Main");
 
             ToolBar = new ToolBar(this);
             ToolBar.Visibility = Visibility.Collapsed;

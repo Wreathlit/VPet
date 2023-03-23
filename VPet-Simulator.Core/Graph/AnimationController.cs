@@ -20,7 +20,7 @@ namespace VPet_Simulator.Core
             get { return _instance.Value; }
         }
 
-        protected IGraph graph;
+        protected Dictionary<string, IGraph> graphs;
 
         protected Random random;
 
@@ -39,15 +39,31 @@ namespace VPet_Simulator.Core
             Initialize();
         }
 
-        public void RegistryGraph(IGraph graph)
+        public void RegistryGraph(IGraph graph, string name)
         {
-            this.graph = graph;
+            if (graphs == null) throw new Exception("Using AnimationController without Initialize");
+            if (graphs.ContainsKey(name)) throw new Exception("Registry duplicate graph name");
+            graphs.Add(name, graph);
+        }
+
+        protected IGraph GetGraphByName(string name)
+        {
+            if (graphs == null) throw new Exception("Using AnimationController without Initialize");
+            if (!graphs.ContainsKey(name))
+            {
+                throw new Exception("Using a unregistried graph");
+            }
+            else
+            {
+                return graphs[name];
+            }
         }
 
         //重新初始化控制器，目前数据暂时无法统一初始化
         public void Initialize()
         {
             Dispose();
+            graphs = new Dictionary<string, IGraph>();
             //TODO：此处应该读取mod中包含的动画定义数据，暂时先手写代替
             animations = new List<PNGAnimation>();
             framesCache = new Dictionary<string, PNGFrame>();
@@ -167,7 +183,7 @@ namespace VPet_Simulator.Core
             }
         }
 
-        private void OrderAnimation(string name, string mode, uint loopTimes, bool forceExit, Action callback)
+        private void OrderAnimation(string graph, string name, string mode, uint loopTimes, bool forceExit, Action callback)
         {
             var accurate = animations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).ToList();
             if (!accurate.Any())
@@ -217,7 +233,7 @@ namespace VPet_Simulator.Core
                 {
                     for (int i = 0; i <= loopTimes; i++)
                     {
-                        GenerateTasks(result).ForEach(x => OrderList.Enqueue(x));
+                        GenerateTasks(graph, result).ForEach(x => OrderList.Enqueue(x));
                     }
                 }
 
@@ -234,7 +250,7 @@ namespace VPet_Simulator.Core
             }
         }
 
-        private List<Action> GenerateTasks(PNGAnimation animation)
+        private List<Action> GenerateTasks(string graph, PNGAnimation animation)
         {
             List<Action> tasks = new List<Action>();
 
@@ -249,9 +265,9 @@ namespace VPet_Simulator.Core
                     //DateTime t = DateTime.Now;
                     if (!f.isCached)
                     {
-                        f.GenerateTexture(graph.GetGraphicsDevice());
+                        f.GenerateTexture(GetGraphByName(graph).GetGraphicsDevice());
                     }
-                    graph.OrderTexture(f.texture, true);
+                    GetGraphByName(graph).OrderTexture(f.texture, true);
                     //Debug.WriteLine("cost time: " + (DateTime.Now - t).Milliseconds.ToString("000") + " ms");
                     Thread.Sleep(f.frameTime);
                 });
@@ -293,19 +309,19 @@ namespace VPet_Simulator.Core
         /// <param name="loopTimes">预约循环次数,最大支持1000</param>
         /// <param name="forceExit">强制打断上一个动画</param>
         /// <param name="callback">动画版播放完成时的回调</param>
-        public void PlayAnimation(string name, string mode, uint loopTimes = 0, bool forceExit = true, Action callback = null)
+        public void PlayAnimation(string graph, string name, string mode, uint loopTimes = 0, bool forceExit = true, Action callback = null)
         {
             loopTimes = Math.Min(loopTimes, 1000);
             if (forceExit)
             {
                 repeatFlag = false;
                 repeatTimes = 0;
-                currentPlayingCommand = () => OrderAnimation(name, mode, loopTimes, forceExit, callback);
+                currentPlayingCommand = () => OrderAnimation(graph, name, mode, loopTimes, forceExit, callback);
                 currentPlayingCommand.Invoke();
             }
             else
             {
-                Action action = () => OrderAnimation(name, mode, loopTimes, forceExit, callback);
+                Action action = () => OrderAnimation(graph, name, mode, loopTimes, forceExit, callback);
                 CommandList.Enqueue(action);
                 if (ProcessOrderThread.ThreadState == ThreadState.WaitSleepJoin) ProcessOrderThread.Interrupt();
             }
@@ -329,7 +345,12 @@ namespace VPet_Simulator.Core
             ClearCommand();
             ClearOrder();
 
-            graph?.Clear();
+            if (graphs != null)
+            {
+                graphs.ToList().ForEach(x => x.Value.Clear());
+                graphs.Clear();
+                graphs = null;
+            }
 
             animations?.ForEach(x => x.Dispose());
             animations?.Clear();

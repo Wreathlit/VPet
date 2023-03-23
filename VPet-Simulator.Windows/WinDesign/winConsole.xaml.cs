@@ -45,7 +45,7 @@ namespace VPet_Simulator.Windows
             var mode = (Save.ModeType)Enum.Parse(typeof(Save.ModeType), (string)(((ComboBoxItem)ComboxMode.SelectedItem).Content));
             if (AnimationController.Instance.Exist(type.GetGrpahString(), mode.ToString()))
             {
-                AnimationController.Instance.PlayAnimation(type.GetGrpahString(), mode.ToString(), 0, true);
+                AnimationController.Instance.PlayAnimation("Main", type.GetGrpahString(), mode.ToString(), 0, true);
                 AnimationController.Instance.RepeatCurrentAnimation(-1);
                 LabelNowPlay.Content = $"当前正在播放: {GraphListBox.SelectedItem}";
             }

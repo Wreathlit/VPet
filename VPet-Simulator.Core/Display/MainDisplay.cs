@@ -1036,7 +1036,7 @@ namespace VPet_Simulator.Core
         public void Display(GraphType Type, Action EndAction = null)
         {
             DisplayType = Type;
-            AnimationController.Instance.PlayAnimation(Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
+            AnimationController.Instance.PlayAnimation("Main", Type.GetGrpahString(), Core.Save.Mode.ToString(), 0, true, EndAction);
         }
     }
 }

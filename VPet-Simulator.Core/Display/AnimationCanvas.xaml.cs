@@ -17,7 +17,7 @@ namespace VPet_Simulator.Core
     /// <summary>
     /// Interaction logic for AnimationCanvas.xaml
     /// </summary>
-    public partial class AnimationCanvas : ContentControl, IGraphNew, IDisposable
+    public partial class AnimationCanvas : ContentControl, IGraph, IDisposable
     {
         private readonly MonoGameGraphicsDeviceService _graphicsDeviceService = new MonoGameGraphicsDeviceService();
         public GraphicsDevice GraphicsDevice => _graphicsDeviceService.GraphicsDevice;
@@ -45,6 +45,7 @@ namespace VPet_Simulator.Core
 
         private SpriteBatch _spriteBatch;
         private Texture2D _texture2D;
+        private Texture2D _texture2DPrevious;
         private bool isUpdating = false;
 
         public AnimationCanvas()
@@ -130,45 +131,6 @@ namespace VPet_Simulator.Core
             IsDisposed = true;
         }
 
-        public void Order(Stream stream)
-        {
-            isUpdating = true;
-
-            if (_texture2D != null)
-            {
-                lock (_texture2D)
-                {
-                    _texture2D.Dispose();
-                    _texture2D = Texture2D.FromStream(GraphicsDevice, stream);
-                }
-            }
-            else
-            {
-                _texture2D = Texture2D.FromStream(GraphicsDevice, stream);
-            }
-
-            isUpdating = false;
-        }
-
-        void IGraphNew.Clear()
-        {
-            //Dispatcher.Invoke(() => Source = null);
-        }
-        private bool CanBeginDraw()
-        {
-            // If we have no graphics device, we must be running in the designer.
-            if (_graphicsDeviceService == null)
-                return false;
-
-            if (!_direct3DImage.IsFrontBufferAvailable)
-                return false;
-
-            // Make sure the graphics device is big enough, and is not lost.
-            if (!HandleDeviceReset())
-                return false;
-
-            return true;
-        }
         private bool HandleDeviceReset()
         {
             if (GraphicsDevice == null)
@@ -241,6 +203,21 @@ namespace VPet_Simulator.Core
             var height = Math.Max(1, (int)ActualHeight);
             GraphicsDevice.Viewport = new Viewport(0, 0, width, height);
         }
+        private bool CanBeginDraw()
+        {
+            // If we have no graphics device, we must be running in the designer.
+            if (_graphicsDeviceService == null)
+                return false;
+
+            if (!_direct3DImage.IsFrontBufferAvailable)
+                return false;
+
+            // Make sure the graphics device is big enough, and is not lost.
+            if (!HandleDeviceReset())
+                return false;
+
+            return true;
+        }
         private void OnRender(object sender, EventArgs e)
         {
             _gameTime.ElapsedGameTime = _stopwatch.Elapsed;
@@ -261,7 +238,7 @@ namespace VPet_Simulator.Core
                         GraphicsDevice.SetRenderTarget(_renderTarget);
                         SetViewport();
 
-                        lock(_texture2D)
+                        lock (_texture2D)
                         {
                             GraphicsDevice.Clear(Microsoft.Xna.Framework.Color.Transparent);
                             _spriteBatch.Begin();
@@ -302,6 +279,42 @@ namespace VPet_Simulator.Core
             _direct3DImage.Lock();
             _direct3DImage.SetBackBuffer(D3DResourceType.IDirect3DSurface9, IntPtr.Zero);
             _direct3DImage.Unlock();
+        }
+        public void Order(Stream stream)
+        {
+            isUpdating = true;
+
+            if (_texture2D != null)
+            {
+                lock (_texture2D)
+                {
+                    _texture2D.Dispose();
+                    _texture2D = Texture2D.FromStream(GraphicsDevice, stream);
+                }
+            }
+            else
+            {
+                _texture2D = Texture2D.FromStream(GraphicsDevice, stream);
+            }
+
+            isUpdating = false;
+        }
+
+        void IGraph.Clear()
+        {
+            _texture2D = null;
+        }
+
+        public void OrderTexture(Texture2D texture, bool disposePrevious = false)
+        {
+            if (_texture2D != null) _texture2DPrevious = _texture2D;
+            _texture2D = texture;
+            if (disposePrevious && _texture2DPrevious != null && !_texture2DPrevious.IsDisposed) _texture2DPrevious.Dispose();
+        }
+
+        public GraphicsDevice GetGraphicsDevice()
+        {
+            return GraphicsDevice;
         }
     }
 }

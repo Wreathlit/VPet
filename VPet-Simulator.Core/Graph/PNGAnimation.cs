@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace VPet_Simulator.Core
 
     //一个完整的动画片段，包括循环体，开头和结尾
     //主体保存配置，和原始内存，由于原始文件大小不会太大，配置部分就不做内存池了
-    public class AnimationInfo
+    public class PNGAnimation
     {
         //动画标识名，比如idle，walk，sleep
         public string name;
@@ -25,13 +26,13 @@ namespace VPet_Simulator.Core
 
         public AnimationType type;
 
-        public List<FrameInfo> framesStart;
-        public List<FrameInfo> framesLoop;
-        public List<FrameInfo> framesEnd;
+        public List<PNGFrame> framesStart;
+        public List<PNGFrame> framesLoop;
+        public List<PNGFrame> framesEnd;
 
         public Vector animationShift;
 
-        public AnimationInfo(string name, string mode, Uri path, AnimationType type = AnimationType.SIMPLE_LOOP)
+        public PNGAnimation(string name, string mode, Uri path, AnimationType type = AnimationType.SIMPLE_LOOP)
         {
             this.name = name;
             this.mode = mode;
@@ -39,14 +40,14 @@ namespace VPet_Simulator.Core
             if (type == AnimationType.SIMPLE_LOOP)
             {
                 DirectoryInfo directoryInfo = new DirectoryInfo(path.LocalPath);
-                framesLoop = new List<FrameInfo>();
+                framesLoop = new List<PNGFrame>();
 
                 var files = directoryInfo.GetFiles();
                 for (int i = 0; i < files.Length; i++)
                 {
                     FileInfo file = files[i];
                     int frameTime = int.Parse(file.Name.Split('.').Reverse().ToArray()[1].Split('_').Last());
-                    FrameInfo frame = new FrameInfo(i, frameTime, i == files.Length - 1, new Uri(file.FullName));
+                    PNGFrame frame = new PNGFrame(i, frameTime, i == files.Length - 1, new Uri(file.FullName));
                     frame.name = name;
                     framesLoop.Add(frame);
                 }
@@ -66,7 +67,7 @@ namespace VPet_Simulator.Core
             DisposeFrameInfoList(ref framesEnd);
         }
 
-        private void DisposeFrameInfoList(ref List<FrameInfo> frames)
+        private void DisposeFrameInfoList(ref List<PNGFrame> frames)
         {
             frames?.ForEach(frame => frame.Dispose());
             frames?.Clear();
@@ -74,10 +75,11 @@ namespace VPet_Simulator.Core
         }
     }
 
-    public class FrameInfo
+    public class PNGFrame
     {
         public Uri uri;                     //本帧的原始URI，用于无法找到缓存需要硬加载的情况（未实现）
         public Stream stream;               //已注册的流，建议用内存流
+        public Texture2D texture;           //texture cache
 
         public int index;                   //本帧序号，从0开始
         public string name;                 //帧所属的动画名
@@ -86,30 +88,53 @@ namespace VPet_Simulator.Core
 
         public Vector frameShift;           //帧位移，用于移动等需要进行位移的动画，代表播放本帧时应该把容器位移多少
 
-        public bool isReady;                //流是否已准备好，用于异步初始化
+        public bool isSteamReady { get { return stream != null && stream.CanRead; } }        //流是否已准备好，用于异步初始化
+        public bool isCached { get { return texture != null && !texture.IsDisposed; } }      //是否已缓存Texture
 
         //创建时即缓存内存，后继如果需要读条，则需要改造成支持异步
-        public FrameInfo(int index, int frameTime, bool isLastFrame, Uri uri, Vector frameShift = new Vector())
+        public PNGFrame(int index, int frameTime, bool isLastFrame, Uri uri, Vector frameShift = new Vector())
         {
             this.index = index;
             this.frameTime = frameTime;
             this.isLastFrame = isLastFrame;
             this.uri = uri;
             this.frameShift = frameShift;
-            LoadToMemory();
+            LoadStream();
         }
 
-        private void LoadToMemory()
+        public void LoadStream()
         {
             //只允许载入本地资源，暂时不支持载入网络资源
             stream = new MemoryStream(File.ReadAllBytes(uri.OriginalString));
-            isReady = true;
+        }
+
+        public void UnloadStream()
+        {
+            stream.Dispose();
+        }
+
+        public bool GenerateTexture(GraphicsDevice graphicsDevice)
+        {
+            if (graphicsDevice == null)
+            {
+                return false;
+            }
+            if (!isCached)
+            {
+                texture = Texture2D.FromStream(graphicsDevice, stream);
+            }
+            return true;
+        }
+
+        public void DisposeTexture()
+        {
+            texture?.Dispose();
         }
 
         public void Dispose()
         {
+            texture?.Dispose();
             stream?.Dispose();
         }
     }
-
 }

@@ -41,6 +41,7 @@ namespace VPet_Simulator.Core
             Core = core;
 
             animationCanvas.GraphicsDeviceService.StartDirect3D(Application.Current.MainWindow);
+            AnimationController.Instance.RegistryGraph(animationCanvas);
 
             ToolBar = new ToolBar(this);
             ToolBar.Visibility = Visibility.Collapsed;
@@ -61,7 +62,7 @@ namespace VPet_Simulator.Core
             MoveTimer.Elapsed += MoveTimer_Elapsed;
             SmartMoveTimer.Elapsed += SmartMoveTimer_Elapsed;
 
-            AnimationController.Instance.RegistryGraph(animationCanvas);
+            
         }
         /// <summary>
         /// 自动加载触摸事件

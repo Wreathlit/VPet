@@ -192,7 +192,7 @@
       <DependentUpon>AnimationCanvas.xaml</DependentUpon>
     </Compile>
     <Compile Include="New\AnimationController.cs" />
-    <Compile Include="New\AnimationInfo.cs" />
+    <Compile Include="New\PNGAnimation.cs" />
     <Compile Include="New\AnimationControllerHelper.cs" />
     <Compile Include="New\IGraphNew.cs" />
     <Compile Include="New\MonoGameGraphicsDeviceService.cs" />

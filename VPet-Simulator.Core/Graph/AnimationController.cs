@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
+using ThreadState = System.Threading.ThreadState;
 
 namespace VPet_Simulator.Core
 {
@@ -19,14 +20,13 @@ namespace VPet_Simulator.Core
             get { return _instance.Value; }
         }
 
-        protected IGraphNew graph;
+        protected IGraph graph;
 
         protected Random random;
 
-        private List<AnimationInfo> rawAnimations;
-        private List<AnimationInfo> animations;
+        private List<PNGAnimation> animations;
 
-        private Dictionary<string, FrameInfo> framesCache;
+        private Dictionary<string, PNGFrame> framesCache;
 
         private List<string> existAnimations;
 
@@ -39,7 +39,7 @@ namespace VPet_Simulator.Core
             Initialize();
         }
 
-        public void RegistryGraph(IGraphNew graph)
+        public void RegistryGraph(IGraph graph)
         {
             this.graph = graph;
         }
@@ -49,9 +49,8 @@ namespace VPet_Simulator.Core
         {
             Dispose();
             //TODO：此处应该读取mod中包含的动画定义数据，暂时先手写代替
-            rawAnimations = new List<AnimationInfo>();
-            animations = new List<AnimationInfo>();
-            framesCache = new Dictionary<string, FrameInfo>();
+            animations = new List<PNGAnimation>();
+            framesCache = new Dictionary<string, PNGFrame>();
             OrderList = new ConcurrentQueue<Action>();
             CommandList = new ConcurrentQueue<Action>();
             random = new Random();
@@ -63,9 +62,8 @@ namespace VPet_Simulator.Core
         {
             if (directoryInfo.Exists && directoryInfo.GetFiles().Length > 0)
             {
-                //Console.WriteLine("Add Animation: " + animationName + " => " + directoryInfo.FullName);
-                AnimationInfo animation = new AnimationInfo(animationName, "", new Uri(directoryInfo.FullName));
-                rawAnimations.Add(animation);
+                PNGAnimation animation = new PNGAnimation(animationName, "", new Uri(directoryInfo.FullName));
+                animations.Add(animation);
 
                 animation.framesLoop.ForEach(frame => { framesCache.Add(frame.uri.LocalPath, frame); });
             }
@@ -82,7 +80,7 @@ namespace VPet_Simulator.Core
         {
             //收集根动画信息，仅接受name和mode的差分
             Dictionary<string, bool> tags = new Dictionary<string, bool>();
-            foreach (var a in rawAnimations)
+            foreach (var a in animations)
             {
                 string name = a.name;
                 foreach (var s in existMode)
@@ -100,9 +98,7 @@ namespace VPet_Simulator.Core
             foreach (var kv in tags)
             {
                 existAnimations.Add(kv.Key);
-                //Console.WriteLine(kv.Key);
             }
-            //Console.WriteLine("Arrange Complete");
         }
 
         private ConcurrentQueue<Action> OrderList;
@@ -119,13 +115,12 @@ namespace VPet_Simulator.Core
             {
                 while (!OrderList.IsEmpty)
                 {
-                    Action a;
-                    if (OrderList.TryDequeue(out a))
+                    Action order;
+                    if (OrderList.TryDequeue(out order))
                     {
                         try
                         {
-                            //Console.WriteLine("Invoke Command: " + a.Method.ToString());
-                            a.Invoke();
+                            order.Invoke();
                         }
                         catch (ThreadInterruptedException) { }
                         catch (ThreadAbortException) { return; }
@@ -145,15 +140,15 @@ namespace VPet_Simulator.Core
                 }
                 else if (!CommandList.IsEmpty)
                 {
-                    Action a;
-                    if (CommandList.TryDequeue(out a))
+                    Action command;
+                    if (CommandList.TryDequeue(out command))
                     {
                         try
                         {
                             repeatFlag = false;
                             repeatTimes = 0;
-                            currentPlayingCommand = a;
-                            a.Invoke();
+                            currentPlayingCommand = command;
+                            command.Invoke();
                             Thread.Sleep(1);
                         }
                         catch (ThreadInterruptedException) { }
@@ -174,20 +169,19 @@ namespace VPet_Simulator.Core
 
         private void OrderAnimation(string name, string mode, uint loopTimes, bool forceExit, Action callback)
         {
-            //Console.WriteLine("Order Animation" + name);
-            var accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).ToList();
+            var accurate = animations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).ToList();
             if (!accurate.Any())
-                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("nomal")).ToList();
+                accurate = animations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("nomal")).ToList();
             if (!accurate.Any())
-                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("happy")).ToList();
+                accurate = animations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("happy")).ToList();
             if (!accurate.Any())
-                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("ill")).ToList();
+                accurate = animations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains("ill")).ToList();
             if (!accurate.Any())
-                accurate = rawAnimations.Where(x => x.name.ToLower().Contains(name)).ToList();
+                accurate = animations.Where(x => x.name.ToLower().Contains(name)).ToList();
             if (!accurate.Any())
-                accurate = rawAnimations.Where(x => x.name.ToLower().Contains("default")).ToList();
+                accurate = animations.Where(x => x.name.ToLower().Contains("default")).ToList();
 
-            AnimationInfo result;
+            PNGAnimation result;
 
             if (accurate.Count > 0)
             {
@@ -207,21 +201,15 @@ namespace VPet_Simulator.Core
                 {
                     index--;
                 }
-                
+
                 result = accurate.ElementAt(index);
                 currentPlaying = name;
                 currentPlayingRandomIndex = index;
 
                 if (forceExit)
                 {
-                    while (!OrderList.IsEmpty)
-                    {
-                        OrderList.TryDequeue(out _);
-                    }
-                    while (!CommandList.IsEmpty)
-                    {
-                        CommandList.TryDequeue(out _);
-                    }
+                    ClearCommand();
+                    ClearOrder();
                     ProcessOrderThread.Interrupt();
                 }
 
@@ -246,22 +234,44 @@ namespace VPet_Simulator.Core
             }
         }
 
-        private List<Action> GenerateTasks(AnimationInfo animation)
+        private List<Action> GenerateTasks(PNGAnimation animation)
         {
             List<Action> tasks = new List<Action>();
 
             for (int i = 0; i < animation.framesLoop.Count; i++)
             {
-                FrameInfo f = animation.framesLoop[i];
+                PNGFrame f = animation.framesLoop[i];
+                //预先生成Texture
+
+
                 tasks.Add(() =>
                 {
-                    //Console.WriteLine(DateTime.Now.Second.ToString("00") + "." + DateTime.Now.Millisecond.ToString("000") + "\t" + f.name + "\tFrame: " + f.index + " Start => time:" + f.frameTime);
-                    Task.Run(() => graph.Order(f.stream));
+                    //DateTime t = DateTime.Now;
+                    if (!f.isCached)
+                    {
+                        f.GenerateTexture(graph.GetGraphicsDevice());
+                    }
+                    graph.OrderTexture(f.texture, true);
+                    //Debug.WriteLine("cost time: " + (DateTime.Now - t).Milliseconds.ToString("000") + " ms");
                     Thread.Sleep(f.frameTime);
-                    //Console.WriteLine(DateTime.Now.Second.ToString("00") + "." + DateTime.Now.Millisecond.ToString("000") + "\t" + f.name + "\t=============>Frame: " + f.index + " End");
                 });
             }
             return tasks;
+        }
+
+        private void ClearOrder()
+        {
+            while (OrderList != null && !OrderList.IsEmpty)
+            {
+                OrderList.TryDequeue(out _);
+            }
+        }
+        private void ClearCommand()
+        {
+            while (CommandList != null && !CommandList.IsEmpty)
+            {
+                CommandList.TryDequeue(out _);
+            }
         }
 
         /// <summary>
@@ -272,7 +282,7 @@ namespace VPet_Simulator.Core
         /// <returns></returns>
         public bool Exist(string name, string mode)
         {
-            return rawAnimations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).Any();
+            return animations.Where(x => x.name.ToLower().Contains(name) && x.name.ToLower().Contains(mode.ToLower())).Any();
         }
 
         /// <summary>
@@ -316,20 +326,10 @@ namespace VPet_Simulator.Core
             ProcessOrderThread?.Abort();
             currentPlayingCommand = null;
 
+            ClearCommand();
+            ClearOrder();
+
             graph?.Clear();
-
-            while (OrderList != null && !OrderList.IsEmpty)
-            {
-                OrderList.TryDequeue(out _);
-            }
-            while (CommandList != null && !CommandList.IsEmpty)
-            {
-                CommandList.TryDequeue(out _);
-            }
-
-            rawAnimations?.ForEach(x => x.Dispose());
-            rawAnimations?.Clear();
-            rawAnimations = null;
 
             animations?.ForEach(x => x.Dispose());
             animations?.Clear();

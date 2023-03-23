@@ -127,6 +127,10 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Display\AnimationCanvas.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Display\basestyle.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -135,6 +139,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="Display\AnimationCanvas.xaml.cs">
+      <DependentUpon>AnimationCanvas.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Display\Main.xaml.cs">
       <DependentUpon>Main.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -159,10 +166,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="New\AnimationCanvas.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Display\MainDisplay.cs" />
@@ -173,6 +176,8 @@
     <Compile Include="Display\ToolBar.xaml.cs">
       <DependentUpon>ToolBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Graph\AnimationController.cs" />
+    <Compile Include="Graph\AnimationControllerHelper.cs" />
     <Compile Include="Graph\FoodAnimation.xaml.cs">
       <DependentUpon>FoodAnimation.xaml</DependentUpon>
     </Compile>
@@ -180,6 +185,9 @@
     <Compile Include="Graph\EyeTracking.xaml.cs">
       <DependentUpon>EyeTracking.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Graph\IGraph.cs" />
+    <Compile Include="Graph\MonoGameGraphicsDeviceService.cs" />
+    <Compile Include="Graph\PNGAnimation.cs" />
     <Compile Include="Handle\Function.cs" />
     <Compile Include="Handle\GameCore.cs" />
     <Compile Include="Handle\IController.cs" />
@@ -188,14 +196,6 @@
     <Compile Include="Item\Drink.cs" />
     <Compile Include="Item\Food.cs" />
     <Compile Include="Item\Item.cs" />
-    <Compile Include="New\AnimationCanvas.xaml.cs">
-      <DependentUpon>AnimationCanvas.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="New\AnimationController.cs" />
-    <Compile Include="New\PNGAnimation.cs" />
-    <Compile Include="New\AnimationControllerHelper.cs" />
-    <Compile Include="New\IGraphNew.cs" />
-    <Compile Include="New\MonoGameGraphicsDeviceService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
